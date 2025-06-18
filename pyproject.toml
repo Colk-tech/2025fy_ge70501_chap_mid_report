@@ -11,6 +11,7 @@ dependencies = [
     "mecab>=0.996.11",
     "pydantic>=2.11.7",
     "pydantic-settings>=2.9.1",
+    "requests>=2.32.4",
     "scikit-learn>=1.7.0",
     "sqlalchemy>=2.0.41",
 ]
