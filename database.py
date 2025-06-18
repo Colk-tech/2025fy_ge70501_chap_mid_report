@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import List, AsyncGenerator, TypeVar, Type
 
-from sqlalchemy import String, ForeignKey, DateTime, select
+from sqlalchemy import String, ForeignKey, DateTime, select, Boolean
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     AsyncEngine,
@@ -60,6 +60,8 @@ class Document(Base):
     processed_content: Mapped[str | None] = mapped_column(
         String, unique=False, nullable=True
     )
+    # 単語と関連付けられたかどうか
+    is_associated: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     associations: Mapped[List[WordDocumentAssociation]] = relationship(
         back_populates="document", cascade="all, delete-orphan"
@@ -138,7 +140,7 @@ async def gets(model: Type[T]) -> list[T]:
         stmt = select(model)
         result = await session.execute(stmt)
 
-        retval = list(result.scalars().all())
+    retval = list(result.scalars().all())
 
     return retval
 
@@ -168,6 +170,21 @@ async def get_all_documents() -> List[Document]:
     result = await gets(Document)
 
     return result
+
+
+async def get_all_documents_by_associated(associated: bool) -> List[Document]:
+    """
+    is_associated フィールドに基づいてドキュメントを取得する。
+    associated が True の場合、関連付けられたドキュメントを取得し、
+    False の場合は関連付けられていないドキュメントを取得する。
+    """
+    async with get_session() as session:
+        stmt = select(Document).where(Document.is_associated == associated)
+        result = await session.execute(stmt)
+
+    retval = list(result.scalars().all())
+
+    return retval
 
 
 async def create_or_find_words(words: List[str]) -> List[Word]:
