@@ -73,11 +73,14 @@ class Document(Base):
 class WordDocumentAssociation(Base):
     __tablename__ = "word_document_associations"
 
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUIDString, primary_key=True, default=uuid_generator
+    )
     word_id: Mapped[str] = mapped_column(
-        UUIDString, ForeignKey("words.id"), primary_key=True
+        UUIDString, ForeignKey("words.id"), nullable=False
     )
     document_id: Mapped[str] = mapped_column(
-        UUIDString, ForeignKey("documents.id"), primary_key=True
+        UUIDString, ForeignKey("documents.id"), nullable=False
     )
 
     word: Mapped[Word] = relationship(back_populates="associations")
