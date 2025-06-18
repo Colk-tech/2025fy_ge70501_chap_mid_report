@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 
 from config import DEFAULT_CONFIG
-from dto import RawAndProcessedContent
+from dto import DocumentDTO
 
 UUIDString = String(36)
 
@@ -57,6 +57,7 @@ class Document(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
+    title: Mapped[str] = mapped_column(String, unique=False, nullable=False)
     # 生のコンテンツ。例えば、テキストファイルの内容など。
     raw_content: Mapped[str] = mapped_column(String, unique=False, nullable=False)
     # 処理されたコンテンツ。ストップワードの除去などがすでに行われ、分かち書き形式になっている前提である。
@@ -107,7 +108,7 @@ async def migrate() -> None:
 @asynccontextmanager
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async_engine: AsyncEngine = create_async_engine(
-        DEFAULT_CONFIG.DATABASE_URL, echo=True
+        DEFAULT_CONFIG.DATABASE_URL, echo=False
     )
     async_session = async_sessionmaker(
         bind=async_engine,
@@ -152,7 +153,7 @@ async def gets(model: Type[T]) -> list[T]:
     return retval
 
 
-async def create_documents(contents: list[RawAndProcessedContent]) -> List[Document]:
+async def create_documents(contents: list[DocumentDTO]) -> List[Document]:
     """
     複数のドキュメントを作成する。
     documents は、Document モデルのインスタンスのリストである必要がある。
@@ -161,6 +162,7 @@ async def create_documents(contents: list[RawAndProcessedContent]) -> List[Docum
 
     for content in contents:
         document = Document(
+            title=content.title,
             raw_content=content.raw_content,
             processed_content=content.processed_content,
         )
@@ -261,7 +263,7 @@ async def get_all_words() -> List[Word]:
 
 
 async def associate_words_with_document(
-        document_ids: list[uuid.UUID],
+    document_ids: list[uuid.UUID],
 ) -> List[WordDocumentAssociation]:
     """
     Document と Word の関連付けを作成する。
@@ -309,7 +311,7 @@ async def get_all_associations() -> List[WordDocumentAssociation]:
 
 
 async def get_associations_by_document(
-        document: Document
+    document: Document,
 ) -> List[WordDocumentAssociation]:
     """
     Document に関連付けられた Association を取得する。

@@ -1,10 +1,11 @@
 from pydantic import BaseModel
 
 
-class RawAndProcessedContent(BaseModel):
+class DocumentDTO(BaseModel):
     """
-    生のコンテンツと処理済みコンテンツを保持するモデル。
+    Document の DTO (Data Transfer Object) クラス。
     """
 
+    title: str
     raw_content: str
     processed_content: str | None = None

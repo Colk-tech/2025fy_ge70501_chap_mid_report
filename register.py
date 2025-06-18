@@ -1,13 +1,19 @@
 import asyncio
 import sys
+import uuid
 from copy import deepcopy
 from pathlib import Path
 
 from MeCab import Tagger  # type: ignore[import-untyped]
 from ja_stopword_remover.remover import StopwordRemover  # type: ignore[import-untyped]
 
-from database import Document, create_documents
-from dto import RawAndProcessedContent
+from database import (
+    Document,
+    create_documents,
+    get_all_documents,
+    associate_words_with_document,
+)
+from dto import DocumentDTO
 
 # 除去する日本語の文字。
 REMOVE_CHARS = [
@@ -40,8 +46,8 @@ REMOVE_CHARS = [
 ]
 
 
-def get_file_data(file_paths: list[Path]) -> list[RawAndProcessedContent]:
-    contents: list[RawAndProcessedContent] = []
+def get_file_data(file_paths: list[Path]) -> list[DocumentDTO]:
+    contents: list[DocumentDTO] = []
     for file_path in file_paths:
         if not file_path.exists():
             raise FileNotFoundError(f"File not found: {file_path}")
@@ -51,7 +57,9 @@ def get_file_data(file_paths: list[Path]) -> list[RawAndProcessedContent]:
         # ファイルの内容を読み込む
         content = file_path.read_text(encoding="utf-8")
         # RawAndProcessedContent モデルを使用してコンテンツを作成
-        raw_and_processed_content = RawAndProcessedContent(
+        raw_and_processed_content = DocumentDTO(
+            # ファイル名をタイトルとして使用
+            title=file_path.stem,
             raw_content=content,
             processed_content=None,
         )
@@ -60,7 +68,7 @@ def get_file_data(file_paths: list[Path]) -> list[RawAndProcessedContent]:
     return contents
 
 
-def process_content(content: RawAndProcessedContent) -> RawAndProcessedContent:
+def process_content(content: DocumentDTO) -> DocumentDTO:
     """
     コンテンツを処理する関数。
     以下の処理を行う:
@@ -98,14 +106,16 @@ def process_content(content: RawAndProcessedContent) -> RawAndProcessedContent:
     # ストップワード除去の結果を再度文字列に変換
     processed_text = " ".join(stopword_removed[0])
 
-    result = RawAndProcessedContent(
-        raw_content=content.raw_content, processed_content=processed_text
+    result = DocumentDTO(
+        title=content.title,
+        raw_content=content.raw_content,
+        processed_content=processed_text,
     )
 
     return result
 
 
-async def register_documents(contents: list[RawAndProcessedContent]) -> None:
+async def register_documents(contents: list[DocumentDTO]) -> None:
     """
     渡された file_paths の各ファイルをドキュメントとして登録する。
     """
@@ -116,6 +126,7 @@ async def register_documents(contents: list[RawAndProcessedContent]) -> None:
         # RawAndProcessedContent モデルを使用してドキュメントを作成
         documents.append(
             Document(
+                title=content.title,
                 raw_content=content.raw_content,
                 processed_content=content.processed_content,
             )
@@ -135,13 +146,25 @@ async def main() -> None:
     file_paths = [Path(arg) for arg in sys.argv[1:]]
     contents = get_file_data(file_paths)
 
-    processed_contents: list[RawAndProcessedContent] = []
+    processed_contents: list[DocumentDTO] = []
     for content in contents:
         processed_content = process_content(content)
         processed_contents.append(processed_content)
 
     # ドキュメントを登録
     await register_documents(processed_contents)
+
+    print("Associating tasks...")
+
+    all_documents = await get_all_documents()
+    print(f"You have {len(all_documents)} documents to process.")
+
+    all_document_ids: list[uuid.UUID] = [doc.id for doc in all_documents]
+
+    print("Associating words...")
+    await associate_words_with_document(all_document_ids)
+
+    print("Done.")
 
 
 if __name__ == "__main__":
