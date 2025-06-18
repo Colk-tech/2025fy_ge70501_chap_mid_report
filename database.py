@@ -183,11 +183,9 @@ async def create_or_find_words(words: List[str]) -> List[Word]:
 
     async with get_session() as session:
         # 既存の単語を取得する。
-        existing_words_query_result = await session.execute(
-            Word.__table__.select().where(Word.text.in_(words_lower_set))
-        )
-        existing_word_records = existing_words_query_result.scalars().all()
-        existing_words = {word.text.lower(): word for word in existing_word_records}
+        stmt = select(Word).where(Word.text.in_(words_lower_set))
+        existing_word_records = list((await session.execute(stmt)).scalars().all())
+        existing_words = {word.text.lower() for word in existing_word_records}
 
         # 新しい単語を作成
         new_words = []
@@ -197,11 +195,11 @@ async def create_or_find_words(words: List[str]) -> List[Word]:
                 session.add(new_word)
                 new_words.append(new_word)
 
-        # 既存の単語と新しい単語を結合
-        all_words = list(existing_words.values()) + new_words
-
         # ID を取得するために flush する
         await session.flush()
+
+        # 既存の単語と新しい単語を結合
+        all_words = existing_word_records + new_words
 
     return all_words
 
