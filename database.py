@@ -261,7 +261,7 @@ async def get_all_words() -> List[Word]:
 
 
 async def associate_words_with_document(
-        document_id: uuid.UUID,
+        document_ids: list[uuid.UUID],
 ) -> List[WordDocumentAssociation]:
     """
     Document と Word の関連付けを作成する。
@@ -271,38 +271,32 @@ async def associate_words_with_document(
     複数の Association を作成する。
     """
 
-    document = await get_document_by_id(document_id)
-
-    if not document:
-        raise ValueError(f"Document with id {document_id} does not exist.")
-
-    if document.is_associated:
-        # すでに関連付けられている場合は何もしない
-        return []
-
-    # Document の processed_content を単語に分割
-    words = document.processed_content.split() if document.processed_content else []
-
-    # 単語を取得または作成
-    word_records = await create_or_find_words(words)
+    documents = await get_by_document_ids(document_ids)
 
     # 関係を作成
     associations = []
-    async with get_session() as session:
-        for word in word_records:
-            # WordDocumentAssociation を作成
-            association = WordDocumentAssociation(
-                word_id=str(word.id),
-                document_id=str(document.id),
-            )
-            associations.append(association)
-            session.add(association)
+    for document in documents:
+        # Document の processed_content を単語に分割
+        words = document.processed_content.split() if document.processed_content else []
 
-        # Document の is_associated フラグを True に設定
-        document.is_associated = True
+        # 単語を取得または作成
+        word_records = await create_or_find_words(words)
 
-        # ID を取得するために flush する
-        await session.flush()
+        async with get_session() as session:
+            for word in word_records:
+                # WordDocumentAssociation を作成
+                association = WordDocumentAssociation(
+                    word_id=str(word.id),
+                    document_id=str(document.id),
+                )
+                associations.append(association)
+                session.add(association)
+
+            # Document の is_associated フラグを True に設定
+            document.is_associated = True
+
+            # ID を取得するために flush する
+            await session.flush()
 
     # 関連付けられた Association を返す
     return associations
