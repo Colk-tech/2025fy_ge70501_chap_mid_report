@@ -178,6 +178,20 @@ async def get_all_documents() -> List[Document]:
     return result
 
 
+async def get_document_by_id(document_id: uuid.UUID) -> Document | None:
+    """
+    ID に基づいてドキュメントを取得する。
+    ドキュメントが存在しない場合は None を返す。
+    """
+    async with get_session() as session:
+        stmt = select(Document).where(Document.id == document_id)
+        result = await session.execute(stmt)
+
+    retval = result.scalars().one_or_none()
+
+    return retval
+
+
 async def get_all_documents_by_associated(associated: bool) -> List[Document]:
     """
     is_associated フィールドに基づいてドキュメントを取得する。
@@ -234,7 +248,7 @@ async def get_all_words() -> List[Word]:
 
 
 async def associate_words_with_document(
-        document: Document
+        document_id: uuid.UUID,
 ) -> List[WordDocumentAssociation]:
     """
     Document と Word の関連付けを作成する。
@@ -243,6 +257,42 @@ async def associate_words_with_document(
     同じ単語が複数回 Document に現れる場合は、
     複数の Association を作成する。
     """
+
+    document = await get_document_by_id(document_id)
+
+    if not document:
+        raise ValueError(f"Document with id {document_id} does not exist.")
+
+    if document.is_associated:
+        # すでに関連付けられている場合は何もしない
+        return []
+
+    # Document の processed_content を単語に分割
+    words = document.processed_content.split() if document.processed_content else []
+
+    # 単語を取得または作成
+    word_records = await create_or_find_words(words)
+
+    # 関係を作成
+    associations = []
+    async with get_session() as session:
+        for word in word_records:
+            # WordDocumentAssociation を作成
+            association = WordDocumentAssociation(
+                word_id=str(word.id),
+                document_id=str(document.id),
+            )
+            associations.append(association)
+            session.add(association)
+
+        # Document の is_associated フラグを True に設定
+        document.is_associated = True
+
+        # ID を取得するために flush する
+        await session.flush()
+
+    # 関連付けられた Association を返す
+    return associations
 
 
 async def get_all_associations() -> List[WordDocumentAssociation]:
