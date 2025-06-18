@@ -195,3 +195,6 @@ cython_debug/
 
 # Playground
 playground/
+
+# database
+*.sqlite3
