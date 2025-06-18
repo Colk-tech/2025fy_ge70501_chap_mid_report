@@ -8,13 +8,4 @@ services:
     tty: true
     working_dir: /app
     volumes:
-      - ./data.sqlite3:/app/data.sqlite3
-    develop:
-      watch:
-        - action: sync
-          path: .
-          target: /app
-          ignore:
-            - .venv/
-        - action: rebuild
-          path: ./pyproject.toml
+      - ./:/app
