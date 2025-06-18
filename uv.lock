@@ -8,6 +8,8 @@ source = { virtual = "." }
 dependencies = [
     { name = "databases", extra = ["sqlite"] },
     { name = "greenlet" },
+    { name = "ja-stopword-remover" },
+    { name = "mecab" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "sqlalchemy" },
@@ -24,6 +26,8 @@ dev = [
 requires-dist = [
     { name = "databases", extras = ["sqlite"], specifier = ">=0.9.0" },
     { name = "greenlet", specifier = ">=3.2.3" },
+    { name = "ja-stopword-remover", specifier = ">=0.2.4" },
+    { name = "mecab", specifier = ">=0.996.11" },
     { name = "pydantic", specifier = ">=2.11.7" },
     { name = "pydantic-settings", specifier = ">=2.9.1" },
     { name = "sqlalchemy", specifier = ">=2.0.41" },
@@ -114,6 +118,31 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/f2/97/ebf4da567aa6827c909642694d71c9fcf53e5b504f2d96afea02718862f3/iniconfig-2.1.0.tar.gz", hash = "sha256:3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7", size = 4793 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2c/e1/e6716421ea10d38022b952c159d5161ca1193197fb744506875fbb87ea7b/iniconfig-2.1.0-py3-none-any.whl", hash = "sha256:9deba5723312380e77435581c6bf4935c94cbfab9b1ed33ef8d238ea168eb760", size = 6050 },
+]
+
+[[package]]
+name = "ja-stopword-remover"
+version = "0.2.4"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c9/b1/0b75aa45b9c439b2d8e126f1797bd7445552c027cca67d8f28e78ce1a9e8/ja_stopword_remover-0.2.4.tar.gz", hash = "sha256:a4a4add8aff37de14202c9e76441c4f4f45eaa120b4e74017f86afea63968e23", size = 6657 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/28/80/697d14ecffa22afb98458385031325a97063ddb99246f421be52fd5b69cb/ja_stopword_remover-0.2.4-py3-none-any.whl", hash = "sha256:3c9094f86e24b4038faa38fca9ffccd7e07b25054c0af88f27a4ec51d13bb9b5", size = 7064 },
+]
+
+[[package]]
+name = "mecab"
+version = "0.996.11"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0d/b9/a1cd2bf34f7f8f3ba329c8871685533d7ca34e9a7faa3b0ca6b96d162d99/mecab-0.996.11-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:e2e4c2b3d5773c178d970a7a5ef3d8c9bd390f31cce043944789c5f5a26f7ee7", size = 505800 },
+    { url = "https://files.pythonhosted.org/packages/eb/50/3245c2d56f05eb6ff267cd4bdd2d1130da9b15366f014df0205ce9e64e8a/mecab-0.996.11-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:3521452f46b5d764c58c5c0eb5f9b83c8f3696b9c216bf64cd35ec0904794115", size = 472042 },
+    { url = "https://files.pythonhosted.org/packages/43/71/98130e75980f3695f669bdf8c7e3c7a5688edc600186e90319a12965d7fb/mecab-0.996.11-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:5ff32329bf25b4499c9c7c17caa5a4bc995d101474002b496b56203b1ecdd857", size = 468366 },
+    { url = "https://files.pythonhosted.org/packages/f8/73/6ce27d218513524a906c9bd402be8d5b2f5acc5dae0ce665e0b751849238/mecab-0.996.11-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ff57964a7eed8df1c132b68a2a0e3497ae541a9fd066e6e7a7c263bdcd0489e5", size = 5239816 },
+    { url = "https://files.pythonhosted.org/packages/19/43/6c953cd0abd66f0545d51d11501795e265e6b5f2cf2e55c1952bc4824990/mecab-0.996.11-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f0b8d3d084ef84342aa7126ac4bf5022d60de50e077d98fc2b2f653353ffdbad", size = 5246508 },
+    { url = "https://files.pythonhosted.org/packages/21/7e/0ea1ef9c826c9af3f0d679823f99995e950c2a64e038cd787ebcddd29d67/mecab-0.996.11-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:024c770e3b2f5f3eaccb5d3d135d001831b981ac3ded2fb80264865095fe255a", size = 5435614 },
+    { url = "https://files.pythonhosted.org/packages/d2/08/e86dfa44f27f96631ca4d62c6a807604ad2a378964edcede5345520a6ed0/mecab-0.996.11-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:275412b9e48f0b5e9f4bf28d10b8dc096eb4107cd8959aabf53146267ed328d4", size = 5602501 },
+    { url = "https://files.pythonhosted.org/packages/d4/99/50317d4f7f57b580263556512988e10f3c8b8f12a2e4c308588ee470e75d/mecab-0.996.11-cp313-cp313-win32.whl", hash = "sha256:9050e9c9e4f2b3472f0c5cc64d58fac646b413ea872237a2f83be93dc2bc7fc7", size = 450718 },
+    { url = "https://files.pythonhosted.org/packages/ae/ab/c68594c44997752029786edd9c1b06f5f7de71719e29ec9a870b4a2ee4ec/mecab-0.996.11-cp313-cp313-win_amd64.whl", hash = "sha256:b9c00b234b0dc0995105512b52df35ddccbf8e5832b142db33f7e0878bb18891", size = 506984 },
 ]
 
 [[package]]
