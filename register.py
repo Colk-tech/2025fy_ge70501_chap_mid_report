@@ -1,5 +1,3 @@
-import asyncio
-import sys
 import uuid
 from copy import deepcopy
 from pathlib import Path
@@ -7,6 +5,7 @@ from pathlib import Path
 from MeCab import Tagger  # type: ignore[import-untyped]
 from ja_stopword_remover.remover import StopwordRemover  # type: ignore[import-untyped]
 
+from config import DEFAULT_CONFIG
 from database import (
     Document,
     create_documents,
@@ -137,13 +136,12 @@ async def register_documents(contents: list[DocumentDTO]) -> None:
     print(f"Registered {len(results)} documents successfully.")
 
 
-async def main() -> None:
-    # 登録するファイルのパスを実行時引数から取得
-    if len(sys.argv) < 2:
-        print("Usage: python register.py <file1> <file2> ...")
-        sys.exit(1)
+async def main(dir_path_str: str = DEFAULT_CONFIG.CASES_SAVE_DIR) -> None:
+    file_paths: list[Path] = []
+    for dir_path in Path(dir_path_str).iterdir():
+        if dir_path.is_file() and dir_path.suffix in {".txt", ".md"}:
+            file_paths.append(dir_path)
 
-    file_paths = [Path(arg) for arg in sys.argv[1:]]
     contents = get_file_data(file_paths)
 
     processed_contents: list[DocumentDTO] = []
@@ -168,4 +166,6 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    import asyncio
+
     asyncio.run(main())
