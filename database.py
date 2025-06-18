@@ -57,7 +57,10 @@ class Document(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
+    # 生のコンテンツ。例えば、テキストファイルの内容など。
     raw_content: Mapped[str] = mapped_column(String, unique=False, nullable=False)
+    # 処理されたコンテンツ。ストップワードの除去などがすでに行われ、分かち書き形式になっている前提である。
+    # 例: "吾輩 猫 名前"
     processed_content: Mapped[str | None] = mapped_column(
         String, unique=False, nullable=True
     )
@@ -228,6 +231,19 @@ async def get_all_words() -> List[Word]:
     result = await gets(Word)
 
     return result
+
+
+async def associate_words_with_document(
+        document: Document
+) -> List[WordDocumentAssociation]:
+    """
+    Document と Word の関連付けを作成する。
+    Document の associations フラグが立っていれば、
+    すでに関連付けられているとみなし、何もしない。
+    同じ単語が複数回 Document に現れる場合は、
+    複数の Association を作成する。
+    """
+
 
 
 async def get_all_associations() -> List[WordDocumentAssociation]:
