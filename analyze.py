@@ -1,4 +1,5 @@
 import asyncio
+import uuid
 
 from database import get_all_words, get_associations_by_word, get_document_by_id
 
@@ -17,10 +18,10 @@ async def main() -> None:
 
         if associations_with_the_word:
             for association in associations_with_the_word:
-                document = await get_document_by_id(association.document_id)
+                document = await get_document_by_id(uuid.UUID(association.document_id))
 
                 if document is None:
-                    print(f"Document with ID {document.id} not found.")
+                    print(f"Document with ID {association.document_id} not found.")
                     continue
 
                 print(f"{document.title} ({document.id})")
