@@ -57,9 +57,7 @@ class Document(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
     raw_content: Mapped[str] = mapped_column(String, unique=False, nullable=False)
-    processed_content: Mapped[str] = mapped_column(
-        String, unique=False, nullable=False
-    )
+    processed_content: Mapped[str] = mapped_column(String, unique=False, nullable=False)
 
     associations: Mapped[List[WordDocumentAssociation]] = relationship(
         back_populates="document", cascade="all, delete-orphan"
