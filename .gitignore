@@ -198,3 +198,6 @@ playground/
 
 # database
 *.sqlite3
+
+# Cases
+./cases/
