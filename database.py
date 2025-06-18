@@ -3,9 +3,9 @@ from __future__ import annotations
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import List, AsyncGenerator
+from typing import List, AsyncGenerator, TypeVar, Type
 
-from sqlalchemy import String, ForeignKey, DateTime
+from sqlalchemy import String, ForeignKey, DateTime, select
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     AsyncEngine,
@@ -124,6 +124,25 @@ async def create_document(content: str) -> Document:
     return document
 
 
+T = TypeVar("T", bound=DeclarativeBase)
+
+
+async def get_all(model: Type[T]) -> list[T]:
+    async with get_session() as session:
+        stmt = select(model)
+        result = await session.execute(stmt)
+
+        retval = list(result.scalars().all())
+
+    return retval
+
+
+async def get_all_documents() -> List[Document]:
+    result = await get_all(Document)
+
+    return result
+
+
 async def create_or_find_words(words: List[str]) -> List[Word]:
     """
     渡された単語のリストから、既存の単語を取得し、新しい単語を作成する。
@@ -158,3 +177,15 @@ async def create_or_find_words(words: List[str]) -> List[Word]:
         await session.flush()
 
     return all_words
+
+
+async def get_all_words() -> List[Word]:
+    result = await get_all(Word)
+
+    return result
+
+
+async def get_all_associations() -> List[WordDocumentAssociation]:
+    result = await get_all(WordDocumentAssociation)
+
+    return result
