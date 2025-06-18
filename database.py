@@ -112,19 +112,22 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
             raise
 
 
-async def create_document(content: str) -> Document:
+T = TypeVar("T", bound=DeclarativeBase)
+
+
+async def creates(records: list[T]) -> list[T]:
+    """
+    複数のレコードを作成する。
+    records は、モデルのインスタンスのリストである必要がある。
+    """
     async with get_session() as session:
-        # 新しいドキュメントを作成
-        document = Document(content=content)
-        session.add(document)
+        for record in records:
+            session.add(record)
 
         # ID を取得するために flush する
         await session.flush()
 
-    return document
-
-
-T = TypeVar("T", bound=DeclarativeBase)
+    return records
 
 
 async def get_all(model: Type[T]) -> list[T]:
