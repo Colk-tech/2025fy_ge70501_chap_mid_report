@@ -245,8 +245,39 @@ async def associate_words_with_document(
     """
 
 
-
 async def get_all_associations() -> List[WordDocumentAssociation]:
     result = await gets(WordDocumentAssociation)
 
     return result
+
+
+async def get_associations_by_document(
+        document: Document
+) -> List[WordDocumentAssociation]:
+    """
+    Document に関連付けられた Association を取得する。
+    """
+    async with get_session() as session:
+        stmt = select(WordDocumentAssociation).where(
+            WordDocumentAssociation.document_id == document.id
+        )
+        result = await session.execute(stmt)
+
+    retval = list(result.scalars().all())
+
+    return retval
+
+
+async def get_associations_by_word(word: Word) -> List[WordDocumentAssociation]:
+    """
+    Word に関連付けられた Association を取得する。
+    """
+    async with get_session() as session:
+        stmt = select(WordDocumentAssociation).where(
+            WordDocumentAssociation.word_id == word.id
+        )
+        result = await session.execute(stmt)
+
+    retval = list(result.scalars().all())
+
+    return retval
