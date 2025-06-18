@@ -16,12 +16,13 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 
 from config import DEFAULT_CONFIG
 
-
-def uuid_generator() -> uuid.UUID:
-    return uuid.uuid4()
-
-
 UUIDString = String(36)
+
+
+def uuid_generator() -> str:
+    result = str(uuid.uuid4())
+
+    return result
 
 
 class Base(DeclarativeBase):
@@ -44,12 +45,6 @@ class Word(Base):
         back_populates="word", cascade="all, delete-orphan"
     )
 
-    documents: Mapped[List[Document]] = relationship(
-        "Document",
-        secondary="word_document_associations",
-        back_populates="words",
-    )
-
 
 # 1 つのドキュメントを表す。
 # id, created_at, content を持ち、Words と関連付けられる。
@@ -65,12 +60,6 @@ class Document(Base):
 
     associations: Mapped[List[WordDocumentAssociation]] = relationship(
         back_populates="document", cascade="all, delete-orphan"
-    )
-
-    words: Mapped[List[Word]] = relationship(
-        "Word",
-        secondary="word_document_associations",
-        back_populates="documents",
     )
 
 
