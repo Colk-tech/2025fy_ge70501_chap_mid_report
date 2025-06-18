@@ -131,7 +131,7 @@ async def creates(records: list[T]) -> list[T]:
     return records
 
 
-async def get_all(model: Type[T]) -> list[T]:
+async def gets(model: Type[T]) -> list[T]:
     async with get_session() as session:
         stmt = select(model)
         result = await session.execute(stmt)
@@ -142,7 +142,7 @@ async def get_all(model: Type[T]) -> list[T]:
 
 
 async def get_all_documents() -> List[Document]:
-    result = await get_all(Document)
+    result = await gets(Document)
 
     return result
 
@@ -184,12 +184,12 @@ async def create_or_find_words(words: List[str]) -> List[Word]:
 
 
 async def get_all_words() -> List[Word]:
-    result = await get_all(Word)
+    result = await gets(Word)
 
     return result
 
 
 async def get_all_associations() -> List[WordDocumentAssociation]:
-    result = await get_all(WordDocumentAssociation)
+    result = await gets(WordDocumentAssociation)
 
     return result
