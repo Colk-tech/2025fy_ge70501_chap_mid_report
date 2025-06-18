@@ -141,6 +141,16 @@ async def gets(model: Type[T]) -> list[T]:
     return retval
 
 
+async def create_documents(documents: List[Document]) -> List[Document]:
+    """
+    複数のドキュメントを作成する。
+    documents は、Document モデルのインスタンスのリストである必要がある。
+    """
+    created_documents = await creates(documents)
+
+    return created_documents
+
+
 async def get_all_documents() -> List[Document]:
     result = await gets(Document)
 
