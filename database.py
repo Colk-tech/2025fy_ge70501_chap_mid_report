@@ -192,6 +192,19 @@ async def get_document_by_id(document_id: uuid.UUID) -> Document | None:
     return retval
 
 
+async def get_by_document_ids(document_ids: List[uuid.UUID]) -> List[Document]:
+    """
+    ドキュメントの ID のリストに基づいてドキュメントを取得する。
+    """
+    async with get_session() as session:
+        stmt = select(Document).where(Document.id.in_(document_ids))
+        result = await session.execute(stmt)
+
+    retval = list(result.scalars().all())
+
+    return retval
+
+
 async def get_all_documents_by_associated(associated: bool) -> List[Document]:
     """
     is_associated フィールドに基づいてドキュメントを取得する。
