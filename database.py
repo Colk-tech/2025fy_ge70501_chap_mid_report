@@ -143,11 +143,22 @@ async def gets(model: Type[T]) -> list[T]:
     return retval
 
 
-async def create_documents(documents: List[Document]) -> List[Document]:
+async def create_documents(contents: list[str]) -> List[Document]:
     """
     複数のドキュメントを作成する。
     documents は、Document モデルのインスタンスのリストである必要がある。
     """
+    documents: list[Document] = []
+
+    for content in contents:
+        document = Document(
+            raw_content=content,
+            # ここは後で処理する場合は None にしておく
+            processed_content=None,
+        )
+
+        documents.append(document)
+
     created_documents = await creates(documents)
 
     return created_documents
