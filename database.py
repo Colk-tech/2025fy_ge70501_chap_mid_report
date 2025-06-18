@@ -131,21 +131,21 @@ async def create_or_find_words(words: List[str]) -> List[Word]:
     word はすべて小文字に変換される。
     """
     # words を小文字に変換
-    words_lower = [word.lower() for word in words]
+    words_lower_list = [word.lower() for word in words]
     # 重複を排除するため、set に変換
-    words_lower = set(words_lower)
+    words_lower_set = set(words_lower_list)
 
     async with get_session() as session:
         # 既存の単語を取得する。
         existing_words_query_result = await session.execute(
-            Word.__table__.select().where(Word.text.in_(words_lower))
+            Word.__table__.select().where(Word.text.in_(words_lower_set))
         )
         existing_word_records = existing_words_query_result.scalars().all()
         existing_words = {word.text.lower(): word for word in existing_word_records}
 
         # 新しい単語を作成
         new_words = []
-        for word in words_lower:
+        for word in words_lower_set:
             if word not in existing_words:
                 new_word = Word(text=word)
                 session.add(new_word)
