@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 
 from config import DEFAULT_CONFIG
+from dto import RawAndProcessedContent
 
 UUIDString = String(36)
 
@@ -145,7 +146,7 @@ async def gets(model: Type[T]) -> list[T]:
     return retval
 
 
-async def create_documents(contents: list[str]) -> List[Document]:
+async def create_documents(contents: list[RawAndProcessedContent]) -> List[Document]:
     """
     複数のドキュメントを作成する。
     documents は、Document モデルのインスタンスのリストである必要がある。
@@ -154,9 +155,8 @@ async def create_documents(contents: list[str]) -> List[Document]:
 
     for content in contents:
         document = Document(
-            raw_content=content,
-            # ここは後で処理する場合は None にしておく
-            processed_content=None,
+            raw_content=content.raw_content,
+            processed_content=content.processed_content,
         )
 
         documents.append(document)
